@@ -2,22 +2,19 @@ package edu.niit.android.course;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.ActionBar;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import edu.niit.android.course.utils.MD5Utils;
+import edu.niit.android.course.utils.StatusUtils;
 
 public class LoginActivity extends AppCompatActivity {
     private EditText etUsername, etPassword;
@@ -25,37 +22,13 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            getWindow().setStatusBarColor(Color.TRANSPARENT);
-        }
+        StatusUtils.setImmersionMode(this);
         setContentView(R.layout.activity_login);
 
-        initToolbar();  // 初始化toolbar
+        StatusUtils.initToolbar(this, "登录", true, false);  // 初始化toolbar
+
         initView();  // 初始化界面控件
         initData();  // 初始化传入的数据
-    }
-
-    private void initToolbar() {
-        Toolbar toolbar = findViewById(R.id.title_toolbar);
-        toolbar.setTitle("登录");
-        setSupportActionBar(toolbar);
-
-        // 设置回退按钮，及点击事件
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true); // 设置返回键
-//            actionBar.setHomeButtonEnabled(true);    // 设置是否是首页
-        }
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LoginActivity.this.finish();
-            }
-        });
     }
 
     private void initData() {
@@ -75,7 +48,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, 1);
             }
         });
 
@@ -101,20 +74,26 @@ public class LoginActivity extends AppCompatActivity {
             Toast.makeText(LoginActivity.this, "密码不能为空", Toast.LENGTH_SHORT).show();
         } else if (TextUtils.isEmpty(spPwd)) {
             Toast.makeText(LoginActivity.this, "请先注册", Toast.LENGTH_SHORT).show();
-        } else if (!spPwd.equals(MD5Utils.md5(spPwd))) {
+        } else if (!spPwd.equals(password)) {
             Toast.makeText(LoginActivity.this, "输入的密码不正确", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
             saveLoginStatus(username, true);
 
-            // 跳转到我的界面
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            // 返回到我的界面
+            Intent intent = new Intent();
             intent.putExtra("isLogin", true);
+            intent.putExtra("loginUser", username);
+            setResult(RESULT_OK, intent);
             LoginActivity.this.finish();
-
         }
     }
 
+    /**
+     * 保存登录的状态和用户名
+     * @param username
+     * @param isLogin
+     */
     private void saveLoginStatus(String username, boolean isLogin) {
         getSharedPreferences("userInfo", MODE_PRIVATE)
                 .edit()
@@ -128,7 +107,19 @@ public class LoginActivity extends AppCompatActivity {
         return sp.getString(username, "");
     }
 
-//    @Override
+    @Override
+    protected void onActivityResult(int requestCode,
+                                    int resultCode,
+                                    @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1 && resultCode == RESULT_OK && data != null) {
+            String username = data.getStringExtra("username");
+            etUsername.setText(username);
+//                etUsername.setSelection(username.length());
+        }
+    }
+
+    //    @Override
 //    public void onWindowFocusChanged(boolean hasFocus) {
 //        super.onWindowFocusChanged(hasFocus);
 //        if (hasFocus && Build.VERSION.SDK_INT >= 19) {
