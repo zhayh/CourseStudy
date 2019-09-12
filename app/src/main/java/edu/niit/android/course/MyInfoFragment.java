@@ -78,7 +78,7 @@ public class MyInfoFragment extends Fragment {
             public void onClick(View v) {
                 if (isLogin) {
                     Intent intent = new Intent(mContext, SettingActivity.class);
-                    startActivity(intent);
+                    startActivityForResult(intent, 1);
                 } else {
                     Toast.makeText(mContext, "请先登录", Toast.LENGTH_SHORT).show();
                 }

@@ -1,23 +1,17 @@
 package edu.niit.android.course;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import edu.niit.android.course.utils.MD5Utils;
+import edu.niit.android.course.utils.SharedUtils;
 import edu.niit.android.course.utils.StatusUtils;
 
 public class RegisterActivity extends AppCompatActivity
@@ -80,43 +74,16 @@ public class RegisterActivity extends AppCompatActivity
         } else if (!password.equals(pwdAgain)) {
             Toast.makeText(RegisterActivity.this, "两次密码必须一致",
                     Toast.LENGTH_SHORT).show();
-        } else if (isExist(username)) {
+        } else if (SharedUtils.isExist(this, username)) {
             Toast.makeText(RegisterActivity.this, "此用户已存在",
                     Toast.LENGTH_SHORT).show();
         } else {
             // 注册成功之后
-            savePref(username, MD5Utils.md5(password));
+            SharedUtils.saveStrValue(this, username, MD5Utils.md5(password));
             Intent intent = new Intent();
             intent.putExtra("username", username);
             setResult(RESULT_OK, intent);
             finish();
         }
-    }
-
-    /**
-     * 保存注册的用户名和密码
-     * @param username 用户名，类型String
-     * @param password 密码，类型String
-     */
-    private void savePref(String username, String password) {
-        SharedPreferences sp = getSharedPreferences("userInfo", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sp.edit();
-//        editor.putString("username", username);
-//        editor.putString("password", password);
-        editor.putString(username, password);
-        editor.apply();
-        Log.d(TAG, password);
-
-    }
-
-    /**
-     * 判断用户是否存在
-     * @param username 用户名
-     * @return true：存在，false：不存在
-     */
-    private boolean isExist(String username) {
-        SharedPreferences sp = getSharedPreferences("userInfo", MODE_PRIVATE);
-        String pwd = sp.getString(username, "");
-        return !TextUtils.isEmpty(pwd);
     }
 }

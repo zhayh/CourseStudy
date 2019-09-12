@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import edu.niit.android.course.utils.MD5Utils;
+import edu.niit.android.course.utils.SharedUtils;
 import edu.niit.android.course.utils.StatusUtils;
 
 public class LoginActivity extends AppCompatActivity {
@@ -52,6 +53,15 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        TextView tvForgetPwd = findViewById(R.id.tv_forget);
+        tvForgetPwd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this, FindPwdActivity.class);
+                startActivity(intent);
+            }
+        });
+
         Button btnLogin = findViewById(R.id.btn_login);
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,7 +76,7 @@ public class LoginActivity extends AppCompatActivity {
         String username = etUsername.getText().toString();
         String password = etPassword.getText().toString();
         password = MD5Utils.md5(password);
-        String spPwd = readPwd(username);
+        String spPwd = SharedUtils.readValue(this, username);
 
         if (TextUtils.isEmpty(username)) {
             Toast.makeText(LoginActivity.this, "用户名不能为空", Toast.LENGTH_SHORT).show();
@@ -78,7 +88,9 @@ public class LoginActivity extends AppCompatActivity {
             Toast.makeText(LoginActivity.this, "输入的密码不正确", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
-            saveLoginStatus(username, true);
+            // 保存登录的状态和用户名
+            SharedUtils.saveStrValue(this, "loginUser", username);
+            SharedUtils.saveBooleanValue(this, "isLogin", true);
 
             // 返回到我的界面
             Intent intent = new Intent();
@@ -87,24 +99,6 @@ public class LoginActivity extends AppCompatActivity {
             setResult(RESULT_OK, intent);
             LoginActivity.this.finish();
         }
-    }
-
-    /**
-     * 保存登录的状态和用户名
-     * @param username
-     * @param isLogin
-     */
-    private void saveLoginStatus(String username, boolean isLogin) {
-        getSharedPreferences("userInfo", MODE_PRIVATE)
-                .edit()
-                .putString("loginUser", username)
-                .putBoolean("isLogin", isLogin)
-                .apply();
-    }
-
-    private String readPwd(String username) {
-        SharedPreferences sp = getSharedPreferences("userInfo", MODE_PRIVATE);
-        return sp.getString(username, "");
     }
 
     @Override
