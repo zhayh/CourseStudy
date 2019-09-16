@@ -1,7 +1,6 @@
-package edu.niit.android.course;
+package edu.niit.android.course.activity;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -13,6 +12,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import edu.niit.android.course.R;
 import edu.niit.android.course.utils.MD5Utils;
 import edu.niit.android.course.utils.SharedUtils;
 import edu.niit.android.course.utils.StatusUtils;

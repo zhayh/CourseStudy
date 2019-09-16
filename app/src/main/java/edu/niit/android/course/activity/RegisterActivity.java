@@ -1,4 +1,4 @@
-package edu.niit.android.course;
+package edu.niit.android.course.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import edu.niit.android.course.R;
 import edu.niit.android.course.utils.MD5Utils;
 import edu.niit.android.course.utils.SharedUtils;
 import edu.niit.android.course.utils.StatusUtils;

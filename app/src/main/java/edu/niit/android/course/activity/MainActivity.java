@@ -1,4 +1,4 @@
-package edu.niit.android.course;
+package edu.niit.android.course.activity;
 
 import android.os.Bundle;
 import android.util.SparseArray;
@@ -12,6 +12,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import edu.niit.android.course.fragment.MyInfoFragment;
+import edu.niit.android.course.R;
 import edu.niit.android.course.utils.StatusUtils;
 
 public class MainActivity extends AppCompatActivity {

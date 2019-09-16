@@ -1,4 +1,4 @@
-package edu.niit.android.course;
+package edu.niit.android.course.fragment;
 
 import android.app.Activity;
 import android.content.Context;
@@ -14,6 +14,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
+
+import edu.niit.android.course.R;
+import edu.niit.android.course.activity.LoginActivity;
+import edu.niit.android.course.activity.SettingActivity;
+import edu.niit.android.course.activity.UserInfoActivity;
 
 public class MyInfoFragment extends Fragment {
     private Context mContext;
@@ -52,7 +57,8 @@ public class MyInfoFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (isLogin) {
-
+                    Intent intent = new Intent(mContext, UserInfoActivity.class);
+                    startActivity(intent);
                 } else {
                     Intent intent = new Intent(mContext, LoginActivity.class);
                     startActivityForResult(intent, 1);

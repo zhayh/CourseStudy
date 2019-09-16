@@ -11,7 +11,6 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import edu.niit.android.course.LoginActivity;
 import edu.niit.android.course.R;
 
 public class StatusUtils {
@@ -34,6 +33,8 @@ public class StatusUtils {
      * 初始化工具栏
      * @param activity
      * @param titleName
+     * @param isHomeUp
+     * @param isHome
      */
     public static void initToolbar(final AppCompatActivity activity, String titleName,
                                    boolean isHomeUp, boolean isHome) {
