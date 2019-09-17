@@ -1,5 +1,4 @@
 <resources>
-
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
@@ -8,24 +7,38 @@
         <item name="colorAccent">@color/colorAccent</item>
 
         <!-- 取消ActionBar -->
-<!--        <item name="windowActionBar">false</item>-->
-<!--        <item name="windowNoTitle">true</item>-->
+        <!--<item name="windowActionBar">false</item>-->
+        <!--<item name="windowNoTitle">true</item>-->
     </style>
+
     <style name="NoActionBar" parent="Theme.AppCompat.Light.NoActionBar" >
         <item name="colorPrimary">@color/colorTitle</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
 
-        <item name="windowNoTitle">true</item>
-        <!-- 设置工具栏控件的颜色-->
+        <!-- 设置toolbar中按钮图标的颜色-->
         <item name="colorControlNormal">@android:color/white</item>
-
+        <!-- 菜单项的字体颜色 -->
+        <item name="android:itemTextAppearance">@style/MenuItemTextStyle</item>
+        <!-- 选项菜单弹出框的样式 -->
+        <item name="actionOverflowMenuStyle">@style/PopupTheme</item>
+        <!--自定义AlertDialog-->
+        <item name="alertDialogTheme">@style/Theme.AppCompat.Light.Dialog.Alert</item>
     </style>
 
-    <!-- 设置工具栏标题颜色-->
-<!--    <style name="toolbar.style" parent="ThemeOverlay.AppCompat.ActionBar">-->
-<!--        <item name="android:textColorPrimary">@android:color/white</item>-->
-<!--    </style>-->
+    <!-- 设置菜单弹框的主题 -->
+    <style name="PopupTheme" parent="ThemeOverlay.AppCompat.Dark">
+        <!-- 设置弹出菜单的锚点, 不覆盖Toolbar视图 -->
+        <item name="overlapAnchor">false</item>
+        <!--设置弹框的背景色 -->
+        <item name="android:popupBackground">@android:color/black</item>
+    </style>
+
+    <!-- popup菜单项的字体颜色 -->
+    <style name="MenuItemTextStyle" parent="@android:style/TextAppearance.Widget.IconMenu.Item">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">16sp</item>
+    </style>
 
     <!-- 底部菜单按钮的样式 -->
     <style name="TabMenuItem">
@@ -37,5 +50,15 @@
         <item name="android:textSize">14sp</item>
         <item name="android:gravity">center</item>
         <item name="android:textColor">@drawable/selector_nav_text</item>
+    </style>
+
+    <style name="MyDialog" parent="@style/Theme.AppCompat.Light.Dialog.Alert">
+        <!--修改AlertDialog按钮的颜色-->
+<!--        <item name="colorAccent">#3F51B5</item>-->
+    </style>
+
+    <!-- 设置工具栏标题颜色-->
+    <style name="ToolbarStyle" parent="ThemeOverlay.AppCompat.ActionBar">
+        <item name="android:textColorPrimary">@android:color/white</item>
     </style>
 </resources>

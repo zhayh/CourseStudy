@@ -1,12 +1,23 @@
 package edu.niit.android.course.entity;
 
+import org.litepal.crud.LitePalSupport;
+
 import java.io.Serializable;
 
-public class UserInfo implements Serializable {
+public class UserInfo extends LitePalSupport implements Serializable {
+    private int _id;
     private String username;
     private String nickname;
     private String sex;
     private String signature;
+
+    public int get_id() {
+        return _id;
+    }
+
+    public void set_id(int _id) {
+        this._id = _id;
+    }
 
     public String getUsername() {
         return username;
