@@ -3,13 +3,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/item_save"
+        android:icon="@mipmap/ic_save"
         android:title="保存"
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/item_cancel"
-        android:icon="@mipmap/ic_cancel"
-        android:title="取消"
-        app:showAsAction="never" />
+        android:icon="@mipmap/ic_add"
+        android:title="测试"
+        app:showAsAction="always">
+        <menu>
+            <item
+                android:icon="@mipmap/ic_add"
+                android:title="添加" />
+            <item
+                android:id="@+id/item_cancel"
+                android:icon="@mipmap/ic_cancel"
+                android:title="取消"
+                app:showAsAction="never" />
+         </menu>
+    </item>
 </menu>
 
