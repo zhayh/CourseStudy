@@ -12,8 +12,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import edu.niit.android.course.fragment.ExerciseFragment;
 import edu.niit.android.course.fragment.MyInfoFragment;
 import edu.niit.android.course.R;
+import edu.niit.android.course.fragment.RecyclerViewFragment;
 import edu.niit.android.course.utils.StatusUtils;
 
 public class MainActivity extends AppCompatActivity {
@@ -32,8 +34,8 @@ public class MainActivity extends AppCompatActivity {
 
         StatusUtils.initToolbar(this, "我的", false, true);
 
-        initView();
         initTitles();
+        initView();
         initFragment();
     }
 
@@ -44,9 +46,9 @@ public class MainActivity extends AppCompatActivity {
         // 1. 创建fragment的列表
         fragments = new SparseArray<>();
         fragments.put(R.id.btn_my, MyInfoFragment.newInstance());
-
+        fragments.put(R.id.btn_execise, ExerciseFragment.newInstance("Activity向Fragment传值"));
         // 2. 加载默认的Fragment
-        replaceFragment(fragments.get(R.id.btn_my));
+        replaceFragment(fragments.get(R.id.btn_execise));
     }
 
     /**
@@ -57,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction ft = manager.beginTransaction();
         ft.replace(R.id.main_body, fragment);
+        ft.addToBackStack(null);
         ft.commit();
     }
 
@@ -70,7 +73,6 @@ public class MainActivity extends AppCompatActivity {
         titles.put(R.id.btn_message, "资讯");
         titles.put(R.id.btn_my, "我的");
     }
-
     /**
      * 根据按钮的id设置界面的标题
      * @param checkedId RadioGroup的选中Id
@@ -96,8 +98,9 @@ public class MainActivity extends AppCompatActivity {
         group.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                Toast.makeText(MainActivity.this, titles.get(checkedId), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(MainActivity.this, titles.get(checkedId), Toast.LENGTH_SHORT).show();
                 setToolbar(checkedId);
+                replaceFragment(fragments.get(checkedId));
             }
         });
     }
