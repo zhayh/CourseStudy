@@ -2,11 +2,15 @@ package edu.niit.android.course.entity;
 
 import java.io.Serializable;
 
+import edu.niit.android.course.R;
+
 public class Exercise implements Serializable {
     private int id;
     private String title;
     private String subTitle;
     private int background;  // 题目标题的背景
+
+    private String bgColor;
 
     public int getId() {
         return id;
@@ -40,12 +44,22 @@ public class Exercise implements Serializable {
         this.background = background;
     }
 
+    public String getBgColor() {
+        return bgColor;
+    }
+
+    public void setBgColor(String bgColor) {
+        this.bgColor = bgColor;
+    }
+
     @Override
     public String toString() {
-        return "Exer{" +
-                "title='" + title + '\'' +
+        return "Exercise{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
                 ", subTitle='" + subTitle + '\'' +
                 ", background=" + background +
+                ", bgColor='" + bgColor + '\'' +
                 '}';
     }
 }

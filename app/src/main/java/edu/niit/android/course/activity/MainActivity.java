@@ -11,6 +11,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.RecyclerView;
 
 import edu.niit.android.course.fragment.ExerciseFragment;
 import edu.niit.android.course.fragment.MyInfoFragment;
@@ -46,9 +47,10 @@ public class MainActivity extends AppCompatActivity {
         // 1. 创建fragment的列表
         fragments = new SparseArray<>();
         fragments.put(R.id.btn_my, MyInfoFragment.newInstance());
-        fragments.put(R.id.btn_execise, ExerciseFragment.newInstance("Activity向Fragment传值"));
+//        fragments.put(R.id.btn_execise, ExerciseFragment.newInstance("Activity向Fragment传值"));
+        fragments.put(R.id.btn_execise, RecyclerViewFragment.newInstance("Activity向Fragment传值"));
         // 2. 加载默认的Fragment
-        replaceFragment(fragments.get(R.id.btn_execise));
+        replaceFragment(fragments.get(R.id.btn_my));
     }
 
     /**

@@ -1,6 +1,9 @@
 package edu.niit.android.course.adapter;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,20 +62,12 @@ public class ExerciseAdapter extends BaseAdapter {
         final Exercise exercise = getItem(position);
         if (exercise != null) {
             holder.tvOrder.setText(String.valueOf(position + 1));
-            holder.tvOrder.setBackgroundResource(exercise.getBackground());
             holder.tvTitle.setText(exercise.getTitle());
             holder.tvSubTitle.setText(exercise.getSubTitle());
 
-            convertView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // 每个item的点击事件处理
-//                    Intent intent = new Intent(context, ExerciseDetailActivity.class);
-//                    intent.putExtra("id", exercise.getId());
-//                    intent.putExtra("title", exercise.getTitle());
-//                    context.startActivity(intent);
-                }
-            });
+            // 设置圆角背景的颜色
+            GradientDrawable drawable = (GradientDrawable) holder.tvOrder.getBackground();
+            drawable.setColor(Color.parseColor(exercise.getBgColor()));
         }
         return convertView;
     }
