@@ -1,5 +1,6 @@
 package edu.niit.android.course.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -18,9 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.niit.android.course.R;
+import edu.niit.android.course.activity.ExerciseDetailActivity;
 import edu.niit.android.course.adapter.RecyclerViewAdapter;
 import edu.niit.android.course.entity.Exercise;
-import edu.niit.android.course.entity.Exercise1;
 import edu.niit.android.course.utils.IOUtils;
 
 public class RecyclerViewFragment extends Fragment {
@@ -57,6 +58,22 @@ public class RecyclerViewFragment extends Fragment {
         // 5. 设置适配器
         recyclerView.setAdapter(adapter);
 
+        // 6. 设置监听器
+        adapter.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Exercise exercise = exercises.get(position);
+                Intent intent = new Intent(getContext(), ExerciseDetailActivity.class);
+                intent.putExtra("id", exercise.getId());
+                intent.putExtra("title", exercise.getTitle());
+                getContext().startActivity(intent);
+            }
+
+            @Override
+            public void onItemLongClick(View view, int position) {
+
+            }
+        });
         return view;
     }
 
