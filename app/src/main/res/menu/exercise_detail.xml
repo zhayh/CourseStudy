@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_score"
+        android:icon="@mipmap/ic_score"
+        android:title="得分"
+        app:showAsAction="always" />
+</menu>

@@ -1,8 +1,12 @@
 package edu.niit.android.course.activity;
 
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.ImageView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,11 +29,17 @@ public class ExerciseDetailActivity extends AppCompatActivity
     // 获取从ExerciseFragment传来的数据
     private int id;
     private String title;
+
     // 从xml文件中获得
     private List<ExerciseDetail> details;
+
     // 控件及Adapter
     private RecyclerView lvDetails;
     private ExerciseDetailAdapter adapter;
+
+    // 保存得分
+    private int score = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,6 +96,7 @@ public class ExerciseDetailActivity extends AppCompatActivity
             detail.setSelect(1);
         } else {
             detail.setSelect(0);
+            score += 1;
         }
         switch (detail.getAnswer()) {
             case 1:
@@ -117,6 +128,7 @@ public class ExerciseDetailActivity extends AppCompatActivity
             detail.setSelect(2);
         } else {
             detail.setSelect(0);
+            score += 1;
         }
 
         switch (detail.getAnswer()) {
@@ -149,6 +161,7 @@ public class ExerciseDetailActivity extends AppCompatActivity
             detail.setSelect(3);
         } else {
             detail.setSelect(0);
+            score += 1;
         }
 
         switch (detail.getAnswer()) {
@@ -181,6 +194,7 @@ public class ExerciseDetailActivity extends AppCompatActivity
             detail.setSelect(4);
         } else {
             detail.setSelect(0);
+            score += 1;
         }
 
         switch (detail.getAnswer()) {
@@ -204,5 +218,37 @@ public class ExerciseDetailActivity extends AppCompatActivity
         ExerciseDetailAdapter.setABCDEnable(false, ivA, ivB, ivC, ivD);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        new MenuInflater(this).inflate(R.menu.exercise_detail, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        String msg = "本次练习得分：" + score * 20;
+        switch(score) {
+            case 0:
+                msg += "，一题都没做对，加油";
+                break;
+            case 1:
+            case 2:
+                msg += "，没及格，继续努力";
+                break;
+            case 3:
+                msg += "，刚及格，继续努力";
+                break;
+            case 4:
+                msg += "，还不错，不要骄傲哦";
+                break;
+            case 5:
+                msg += "，全做对，太棒了！";
+                break;
+        }
+        new AlertDialog.Builder(this).setTitle("得分")
+                .setMessage(msg)
+                .setPositiveButton("确定", null)
+                .show();
+        return true;
+    }
 }
