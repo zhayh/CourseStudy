@@ -2,9 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="edu.niit.android.course">
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
@@ -13,7 +10,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/NoActionBar">
-        <activity android:name=".activity.ChangeUserInfoActivity"></activity>
+        <activity android:name=".activity.ExerciseDetailActivity"></activity>
+        <activity android:name=".activity.ChangeUserInfoActivity" />
         <activity android:name=".activity.UserInfoActivity" />
         <activity android:name=".activity.ModifyPwdActivity" />
         <activity android:name=".activity.FindPwdActivity" />
@@ -30,5 +28,8 @@
         <activity android:name=".activity.MainActivity" />
         <activity android:name=".activity.MainViewPagerActivity" />
     </application>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
 </manifest>

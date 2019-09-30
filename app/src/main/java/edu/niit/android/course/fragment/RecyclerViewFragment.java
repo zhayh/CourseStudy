@@ -40,12 +40,12 @@ public class RecyclerViewFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
         // 1. 初始化数据
         initData();
         // 2. 获取控件
-        View view = inflater.inflate(R.layout.fragment_recycler_view, container, false);
+        final View view = inflater.inflate(R.layout.fragment_recycler_view, container, false);
         RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
         // 3. 设置布局和分割线
         LinearLayoutManager manager = new LinearLayoutManager(container.getContext());
@@ -63,10 +63,12 @@ public class RecyclerViewFragment extends Fragment {
             @Override
             public void onItemClick(View view, int position) {
                 Exercise exercise = exercises.get(position);
+
+                // 跳转到相应的章节的习题
                 Intent intent = new Intent(getContext(), ExerciseDetailActivity.class);
-                intent.putExtra("id", exercise.getId());
-                intent.putExtra("title", exercise.getTitle());
-                getContext().startActivity(intent);
+                intent.putExtra("id", exercise.getId());   // 用于识别是哪个xml文件
+                intent.putExtra("title", exercise.getTitle());  // 用于设置详情的标题栏
+                container.getContext().startActivity(intent);
             }
 
             @Override
