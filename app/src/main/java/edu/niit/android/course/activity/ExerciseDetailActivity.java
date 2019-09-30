@@ -220,7 +220,7 @@ public class ExerciseDetailActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        new MenuInflater(this).inflate(R.menu.exercise_detail, menu);
+        getMenuInflater().inflate(R.menu.exercise_detail, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
