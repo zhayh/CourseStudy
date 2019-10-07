@@ -15,11 +15,11 @@ import java.util.List;
 import edu.niit.android.course.R;
 import edu.niit.android.course.entity.Exercise;
 
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
+public class ExerciseRecyclerAdapter extends RecyclerView.Adapter<ExerciseRecyclerAdapter.ViewHolder> {
     private List<Exercise> exercises;
 
 
-    public RecyclerViewAdapter(List<Exercise> exercises) {
+    public ExerciseRecyclerAdapter(List<Exercise> exercises) {
         this.exercises = exercises;
     }
 

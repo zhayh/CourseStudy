@@ -20,19 +20,19 @@ import java.util.List;
 
 import edu.niit.android.course.R;
 import edu.niit.android.course.activity.ExerciseDetailActivity;
-import edu.niit.android.course.adapter.RecyclerViewAdapter;
+import edu.niit.android.course.adapter.ExerciseRecyclerAdapter;
 import edu.niit.android.course.entity.Exercise;
 import edu.niit.android.course.utils.IOUtils;
 
-public class RecyclerViewFragment extends Fragment {
+public class ExerciseRecyclerFragment extends Fragment {
     private List<Exercise> exercises;
 
-    public RecyclerViewFragment() {
+    public ExerciseRecyclerFragment() {
         // Required empty public constructor
     }
 
-    public static RecyclerViewFragment newInstance(String param) {
-        RecyclerViewFragment fragment = new RecyclerViewFragment();
+    public static ExerciseRecyclerFragment newInstance(String param) {
+        ExerciseRecyclerFragment fragment = new ExerciseRecyclerFragment();
         Bundle bundle = new Bundle();
         bundle.putString("param", param);
         fragment.setArguments(bundle);
@@ -45,21 +45,21 @@ public class RecyclerViewFragment extends Fragment {
         // 1. 初始化数据
         initData();
         // 2. 获取控件
-        final View view = inflater.inflate(R.layout.fragment_recycler_view, container, false);
-        RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
+        final View view = inflater.inflate(R.layout.fragment_exercise_recycler, container, false);
+        RecyclerView rvExercise = view.findViewById(R.id.rv_exercise);
         // 3. 设置布局和分割线
         LinearLayoutManager manager = new LinearLayoutManager(container.getContext());
         manager.setOrientation(LinearLayoutManager.VERTICAL);
-        recyclerView.setLayoutManager(manager);
-        recyclerView.addItemDecoration(new DividerItemDecoration(container.getContext(),
+        rvExercise.setLayoutManager(manager);
+        rvExercise.addItemDecoration(new DividerItemDecoration(container.getContext(),
                 DividerItemDecoration.VERTICAL));
         // 4. 创建适配器
-        RecyclerViewAdapter adapter = new RecyclerViewAdapter(exercises);
+        ExerciseRecyclerAdapter adapter = new ExerciseRecyclerAdapter(exercises);
         // 5. 设置适配器
-        recyclerView.setAdapter(adapter);
+        rvExercise.setAdapter(adapter);
 
         // 6. 设置监听器
-        adapter.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
+        adapter.setOnItemClickListener(new ExerciseRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
                 Exercise exercise = exercises.get(position);
