@@ -7,6 +7,7 @@ import android.os.Message;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -56,7 +57,7 @@ public class AnotherCourseFragment extends Fragment {
             }
             if (msg.what == MSG_AD_ID ) {
                 viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
-                sendEmptyMessageDelayed(MSG_AD_ID, 5000);
+//                sendEmptyMessageDelayed(MSG_AD_ID, 5000);
             }
         }
     }
@@ -97,14 +98,14 @@ public class AnotherCourseFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_another_course, container, false);
 
         initAdData();
-        initView(view);
+        initAdView(view);
 
         adHandler = new AdHandler(adPager);
         new AdSlideThread().start();
         return view;
     }
 
-    private void initView(View view) {
+    private void initAdView(View view) {
         // 广告栏
         adPager = view.findViewById(R.id.vp_banner);
         adPager.setLongClickable(false);
@@ -144,6 +145,27 @@ public class AnotherCourseFragment extends Fragment {
             indicator.setCurrentPosition(0);
             tvDesc.setText(adImages.get(0).getDesc());
         }
+
+        // 监听触屏事件，按下后取消所有的消息，抬起则恢复
+        adPager.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        adHandler.removeCallbacksAndMessages(null);
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        // 删除CourseFragment
+                        adHandler.removeCallbacksAndMessages(null);
+                        adHandler.sendEmptyMessageDelayed(CourseFragment.MSG_AD_ID, 5000);
+                        v.performClick();  // 解决onTouch和onClick事件的冲突
+                        break;
+                }
+                return true;
+            }
+        });
     }
 
     /**
@@ -200,25 +222,3 @@ public class AnotherCourseFragment extends Fragment {
         }
     }
 }
-
-//adPager.setOnTouchListener(new View.OnTouchListener() {
-//@Override
-//public boolean onTouch(View v, MotionEvent event) {
-//        switch (event.getAction()) {
-//        case MotionEvent.ACTION_DOWN:
-//        adHandler.removeCallbacksAndMessages(null);
-//        break;
-//        case MotionEvent.ACTION_MOVE:
-//        break;
-//        case MotionEvent.ACTION_UP:
-//        // 删除CourseFragment
-//        adHandler.removeCallbacksAndMessages(null);
-//        adHandler.sendEmptyMessageDelayed(CourseFragment.MSG_AD_ID, 5000);
-//        v.performClick();  // 解决onTouch和onClick事件的冲突
-//        break;
-//        }
-//        return true;
-//        }
-//
-//
-//        });

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -36,9 +37,11 @@ public class CourseFragment extends Fragment implements ViewPager.OnPageChangeLi
     public CourseFragment() {
         // Required empty public constructor
     }
+
     private static CourseFragment fragment;
+
     public static CourseFragment newInstance() {
-        if(fragment == null) {
+        if (fragment == null) {
             fragment = new CourseFragment();
         }
         return fragment;
@@ -66,6 +69,7 @@ public class CourseFragment extends Fragment implements ViewPager.OnPageChangeLi
         new AdSlideThread().start();
         return view;
     }
+
     // 初始化ViewPager需要的图片集合
     private void initAdData() {
         adImages = new ArrayList<>();
@@ -115,6 +119,27 @@ public class CourseFragment extends Fragment implements ViewPager.OnPageChangeLi
             }
             imageViews.add(iv);
         }
+
+        // 监听触屏事件，按下后取消所有的消息，抬起则恢复
+        viewPager.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        adHandler.removeCallbacksAndMessages(null);
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        // 删除CourseFragment
+                        adHandler.removeCallbacksAndMessages(null);
+                        adHandler.sendEmptyMessageDelayed(CourseFragment.MSG_AD_ID, 5000);
+                        v.performClick();  // 解决onTouch和onClick事件的冲突
+                        break;
+                }
+                return true;
+            }
+        });
     }
 
     // 添加指示器圆点
@@ -203,24 +228,3 @@ public class CourseFragment extends Fragment implements ViewPager.OnPageChangeLi
 
 }
 
-//adPager.setOnTouchListener(new View.OnTouchListener() {
-//@Override
-//public boolean onTouch(View v, MotionEvent event) {
-//        switch (event.getAction()) {
-//        case MotionEvent.ACTION_DOWN:
-//        adHandler.removeCallbacksAndMessages(null);
-//        break;
-//        case MotionEvent.ACTION_MOVE:
-//        break;
-//        case MotionEvent.ACTION_UP:
-//        // 删除CourseFragment
-//        adHandler.removeCallbacksAndMessages(null);
-//        adHandler.sendEmptyMessageDelayed(CourseFragment.MSG_AD_ID, 5000);
-//        v.performClick();  // 解决onTouch和onClick事件的冲突
-//        break;
-//        }
-//        return true;
-//        }
-//
-//
-//        });
