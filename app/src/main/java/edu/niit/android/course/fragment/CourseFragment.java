@@ -7,20 +7,29 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 import edu.niit.android.course.R;
 import edu.niit.android.course.adapter.AdViewPagerAdapter;
+import edu.niit.android.course.adapter.CourseAdapter;
 import edu.niit.android.course.entity.AdImage;
+import edu.niit.android.course.entity.Course;
+import edu.niit.android.course.utils.IOUtils;
 
 public class CourseFragment extends Fragment implements ViewPager.OnPageChangeListener {
     // 广告轮播图相关
@@ -34,12 +43,15 @@ public class CourseFragment extends Fragment implements ViewPager.OnPageChangeLi
     private List<ImageView> imageViews;     // 图片的集合
     private int lastPos;                    // 之前的位置
 
+    // 课程章节相关
+    private GridView gvCourse;
+    private List<Course> courses;
+
     public CourseFragment() {
         // Required empty public constructor
     }
 
     private static CourseFragment fragment;
-
     public static CourseFragment newInstance() {
         if (fragment == null) {
             fragment = new CourseFragment();
@@ -67,7 +79,33 @@ public class CourseFragment extends Fragment implements ViewPager.OnPageChangeLi
         adHandler = new AdHandler(viewPager);
 //        adHandler.sendEmptyMessageDelayed(MSG_AD_ID, 5000);
         new AdSlideThread().start();
+
+        // 加载课程视频的数据，并显示
+        initCourses();
+        gvCourse = view.findViewById(R.id.gv_courses);
+        CourseAdapter adapter = new CourseAdapter(getContext(), courses);
+        gvCourse.setAdapter(adapter);
+        gvCourse.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Course course = (Course) parent.getItemAtPosition(position);
+                // 跳转到课程详情界面
+                Toast.makeText(getContext(), "点击了：" + course.getTitle(), Toast.LENGTH_SHORT).show();
+            }
+        });
         return view;
+    }
+
+    private void initCourses() {
+        courses = new ArrayList<>();
+
+        try {
+            InputStream is = getResources().getAssets().open("chapter_intro.json");
+            String json = IOUtils.convert(is, StandardCharsets.UTF_8);
+            courses = IOUtils.convert(json, Course.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     // 初始化ViewPager需要的图片集合
@@ -201,7 +239,7 @@ public class CourseFragment extends Fragment implements ViewPager.OnPageChangeLi
             }
             if (msg.what == MSG_AD_ID) {
                 viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
-                sendEmptyMessageDelayed(MSG_AD_ID, 5000);
+//                sendEmptyMessageDelayed(MSG_AD_ID, 5000);
             }
         }
     }
@@ -220,7 +258,10 @@ public class CourseFragment extends Fragment implements ViewPager.OnPageChangeLi
                     e.printStackTrace();
                 }
                 if (adHandler != null) {
-                    adHandler.sendEmptyMessage(MSG_AD_ID);
+                    Message msg = adHandler.obtainMessage();
+                    msg.what = MSG_AD_ID;
+                    adHandler.sendMessage(msg);
+//                    adHandler.sendEmptyMessage(MSG_AD_ID);
                 }
             }
         }

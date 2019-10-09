@@ -11,18 +11,29 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
+import com.alibaba.fastjson.JSON;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 import edu.niit.android.course.R;
 import edu.niit.android.course.adapter.AdBannerAdapter;
+import edu.niit.android.course.adapter.CourseRecyclerAdapter;
 import edu.niit.android.course.entity.AdImage;
+import edu.niit.android.course.entity.Course;
+import edu.niit.android.course.utils.IOUtils;
 import edu.niit.android.course.view.ViewPagerIndicator;
 
 public class AnotherCourseFragment extends Fragment {
@@ -37,50 +48,9 @@ public class AnotherCourseFragment extends Fragment {
     private List<AdImage> adImages;
     private AdHandler adHandler;
 
-    /**
-     * 处理广告栏消息的Handler类
-     */
-    private static class AdHandler extends Handler {
-        private WeakReference<ViewPager> reference;
-
-        public AdHandler(ViewPager viewPager) {
-            reference = new WeakReference<>(viewPager);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-
-            ViewPager viewPager = reference.get();
-            if (viewPager == null) {
-                return;
-            }
-            if (msg.what == MSG_AD_ID ) {
-                viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
-//                sendEmptyMessageDelayed(MSG_AD_ID, 5000);
-            }
-        }
-    }
-
-    /**
-     * 使用多线程实现广告自动切换
-     */
-    private class AdSlideThread extends Thread {
-        @Override
-        public void run() {
-            super.run();
-            while (true) {
-                try {
-                    sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                if (adHandler != null) {
-                    adHandler.sendEmptyMessage(MSG_AD_ID);
-                }
-            }
-        }
-    }
+    // 课程章节相关
+    private RecyclerView rvCourse;
+    private List<Course> courses;
 
     public AnotherCourseFragment() {
         // Required empty public constructor
@@ -102,7 +72,42 @@ public class AnotherCourseFragment extends Fragment {
 
         adHandler = new AdHandler(adPager);
         new AdSlideThread().start();
+
+        // 加载课程视频的数据，并显示
+        initCourses();
+        initCourseView(view);
+
         return view;
+    }
+
+    private void initCourseView(View view) {
+        rvCourse = view.findViewById(R.id.rv_courses);
+
+        CourseRecyclerAdapter adapter = new CourseRecyclerAdapter(courses);
+        rvCourse.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        rvCourse.setAdapter(adapter);
+
+        adapter.setOnItemClickListener(new CourseRecyclerAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Course course = courses.get(position);
+                // 跳转到课程详情界面
+                Toast.makeText(getContext(), "点击了：" + course.getTitle(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void initCourses() {
+        courses = new ArrayList<>();
+
+        try {
+            InputStream is = getResources().getAssets().open("chapter_intro.json");
+            String json = IOUtils.convert(is, StandardCharsets.UTF_8);
+            courses = JSON.parseArray(json, Course.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void initAdView(View view) {
@@ -172,7 +177,7 @@ public class AnotherCourseFragment extends Fragment {
      * 设置广告栏的宽高
      */
     private void resetSize() {
-        if(getActivity() != null) {
+        if (getActivity() != null) {
             int screenWidth = getScreenWidth(getActivity());
             ViewGroup.LayoutParams params = adLayout.getLayoutParams();
             params.width = screenWidth;
@@ -183,6 +188,7 @@ public class AnotherCourseFragment extends Fragment {
 
     /**
      * 读取屏幕的宽度
+     *
      * @param activity
      * @return
      */
@@ -221,4 +227,51 @@ public class AnotherCourseFragment extends Fragment {
             adImages.add(adImage);
         }
     }
+
+    /**
+     * 处理广告栏消息的Handler类
+     */
+    private static class AdHandler extends Handler {
+        private WeakReference<ViewPager> reference;
+
+        public AdHandler(ViewPager viewPager) {
+            reference = new WeakReference<>(viewPager);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+
+            ViewPager viewPager = reference.get();
+            if (viewPager == null) {
+                return;
+            }
+            if (msg.what == MSG_AD_ID) {
+                viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
+//                sendEmptyMessageDelayed(MSG_AD_ID, 5000);
+            }
+        }
+    }
+
+    /**
+     * 使用多线程实现广告自动切换
+     */
+    private class AdSlideThread extends Thread {
+        @Override
+        public void run() {
+            super.run();
+            while (true) {
+                try {
+                    sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                if (adHandler != null) {
+                    adHandler.sendEmptyMessage(MSG_AD_ID);
+                }
+            }
+        }
+    }
+
+
 }
