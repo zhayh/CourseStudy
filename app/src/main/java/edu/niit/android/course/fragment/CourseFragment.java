@@ -1,5 +1,6 @@
 package edu.niit.android.course.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -17,6 +18,10 @@ import android.widget.Toast;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
+import com.alibaba.fastjson.JSON;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -25,15 +30,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.niit.android.course.R;
+import edu.niit.android.course.activity.CourseVideoActivity;
 import edu.niit.android.course.adapter.AdViewPagerAdapter;
 import edu.niit.android.course.adapter.CourseAdapter;
 import edu.niit.android.course.entity.AdImage;
 import edu.niit.android.course.entity.Course;
+import edu.niit.android.course.utils.HttpsUtil;
 import edu.niit.android.course.utils.IOUtils;
+import edu.niit.android.course.utils.NetworkUtils;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class CourseFragment extends Fragment implements ViewPager.OnPageChangeListener {
     // 广告轮播图相关
-    public static final int MSG_AD_ID = 1;  // 广告自动滑动的消息ID
+    public static final int MSG_AD_ID = 1;      // 广告自动滑动的消息ID
+    public static final int MSG_COURSE_ID = 2;   // 从网络获取课程信息的消息ID
 
     private ViewPager viewPager;
     private TextView tvDesc;                // 图片的描述
@@ -45,7 +58,7 @@ public class CourseFragment extends Fragment implements ViewPager.OnPageChangeLi
 
     // 课程章节相关
     private GridView gvCourse;
-    private List<Course> courses;
+    private Handler courseHandler = new CourseHandler(this);
 
     public CourseFragment() {
         // Required empty public constructor
@@ -77,12 +90,37 @@ public class CourseFragment extends Fragment implements ViewPager.OnPageChangeLi
         viewPager.setAdapter(new AdViewPagerAdapter(imageViews));
 
         adHandler = new AdHandler(viewPager);
-//        adHandler.sendEmptyMessageDelayed(MSG_AD_ID, 5000);
         new AdSlideThread().start();
 
-        // 加载课程视频的数据，并显示
-        initCourses();
+        // 课程相关
+        courseHandler = new CourseHandler(this);
+
+        // 加载本地的课程视频的数据
         gvCourse = view.findViewById(R.id.gv_courses);
+        loadCourseByFile();
+
+        loadCourseByNet();
+        loadCourseByOkHttp();
+        return view;
+    }
+
+    /**
+     * 从本地json文件获取数据，更新UI
+     */
+    private void loadCourseByFile() {
+        try {
+            InputStream is = getResources().getAssets().open("chapter_intro.json");
+            String json = IOUtils.convert(is, StandardCharsets.UTF_8);
+            List<Course> courses = JSON.parseArray(json, Course.class);
+            if(courses != null) {
+                updateCourse(courses);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void updateCourse(List<Course> courses) {
         CourseAdapter adapter = new CourseAdapter(getContext(), courses);
         gvCourse.setAdapter(adapter);
         gvCourse.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -91,21 +129,100 @@ public class CourseFragment extends Fragment implements ViewPager.OnPageChangeLi
                 Course course = (Course) parent.getItemAtPosition(position);
                 // 跳转到课程详情界面
                 Toast.makeText(getContext(), "点击了：" + course.getTitle(), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getContext(), CourseVideoActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("course", course);
+                intent.putExtras(bundle);
+                startActivity(intent);
             }
         });
-        return view;
     }
 
-    private void initCourses() {
-        courses = new ArrayList<>();
+    /**
+     * 利用HttpURLConnection从网络获取json数据，更新UI
+     */
+    private void loadCourseByNet() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String json = NetworkUtils.get("https://www.fastmock.site/mock/b46332ceba020b46458f016deac2c275/course/chapter");
+                List<Course> courses = JSON.parseArray(json, Course.class);
+                if(courses != null) {
+                    Message msg = new Message();
+                    msg.what = MSG_COURSE_ID;  // 整型常量，可以用整数直接代替
+                    msg.obj = courses;
+                    courseHandler.sendMessage(msg);
+                }
+            }
+        }).start();
+    }
 
-        try {
-            InputStream is = getResources().getAssets().open("chapter_intro.json");
-            String json = IOUtils.convert(is, StandardCharsets.UTF_8);
-            courses = IOUtils.convert(json, Course.class);
-        } catch (IOException e) {
-            e.printStackTrace();
+    private static class CourseHandler extends Handler {
+        private WeakReference<CourseFragment> ref;
+
+        public CourseHandler(CourseFragment fragment) {
+            this.ref = new WeakReference<>(fragment);
         }
+
+        @Override
+        public void handleMessage(Message msg) {
+            CourseFragment target = ref.get();
+
+            if(msg.what == MSG_COURSE_ID) {
+                List<Course> courses = (List<Course>) msg.obj;
+                if(courses != null) {
+                    target.updateCourse(courses);
+                } else {
+                    Toast.makeText(target.getContext(),"目前还没有课程数据", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
+
+    /**
+     * 利用OkHttp从网络获取json数据，更新UI
+     */
+    private void loadCourseByOkHttp() {
+        // 1. 创建一个Okhttp3的Request对象，装载url、header等request头
+        Request request = new Request.Builder()
+                .url("https://www.fastmock.site/mock/b46332ceba020b46458f016deac2c275/course/chapter")
+                .addHeader("Accept", "application/json")
+                .method("GET", null)
+                .build();
+
+        // 2. 采用OkHttp的enqueue异步方式发送请求，使用Callback回调处理响应
+        HttpsUtil.handleSSLHandshakeByOkHttp().newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                // 处理请求失败的信息
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    // 2.1 提取Http body数据
+                    if(response.body() != null) {
+                        String json = response.body().string();
+                        final List<Course> courses = JSON.parseArray(json, Course.class);
+
+                        // 使用Handler的Message更新UI
+//                    if(courses != null) {
+//                        Message msg = new Message();
+//                        msg.what = MSG_COURSE_ID;
+//                        msg.obj = courses;
+//                        courseHandler.sendMessage(msg);
+//                    }
+                        // 2.2 通过runOnUiThread回到主线程下更新UI
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateCourse(courses);
+                            }
+                        });
+                    }
+                }
+            }
+        });
     }
 
     // 初始化ViewPager需要的图片集合
@@ -266,6 +383,5 @@ public class CourseFragment extends Fragment implements ViewPager.OnPageChangeLi
             }
         }
     }
-
 }
 

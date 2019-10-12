@@ -1,6 +1,7 @@
 package edu.niit.android.course.fragment;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -21,6 +22,8 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.alibaba.fastjson.JSON;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -29,16 +32,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.niit.android.course.R;
+import edu.niit.android.course.activity.CourseVideoActivity;
 import edu.niit.android.course.adapter.AdBannerAdapter;
 import edu.niit.android.course.adapter.CourseRecyclerAdapter;
 import edu.niit.android.course.entity.AdImage;
 import edu.niit.android.course.entity.Course;
+import edu.niit.android.course.utils.HttpsUtil;
 import edu.niit.android.course.utils.IOUtils;
+import edu.niit.android.course.utils.NetworkUtils;
 import edu.niit.android.course.view.ViewPagerIndicator;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Request;
+import okhttp3.Response;
+
+import static edu.niit.android.course.fragment.CourseFragment.MSG_COURSE_ID;
 
 public class AnotherCourseFragment extends Fragment {
     // 广告相关
-    public static final int MSG_AD_ID = 1;  // 广告自动滑动
+    public static final int MSG_AD_ID = 1;      // 广告自动滑动
+    public static final int MSG_COURSE_ID = 2;  // 从网络获取课程信息的消息ID
     private ViewPager adPager;
     private View adLayout;
     private AdBannerAdapter adAdapter;
@@ -50,7 +63,7 @@ public class AnotherCourseFragment extends Fragment {
 
     // 课程章节相关
     private RecyclerView rvCourse;
-    private List<Course> courses;
+    private Handler courseHandler = new CourseHandler(this);
 
     public AnotherCourseFragment() {
         // Required empty public constructor
@@ -74,15 +87,87 @@ public class AnotherCourseFragment extends Fragment {
         new AdSlideThread().start();
 
         // 加载课程视频的数据，并显示
-        initCourses();
-        initCourseView(view);
+        rvCourse = view.findViewById(R.id.rv_courses);
+        loadCourseByFile();
+        loadCourseByNet();
+        loadCourseByOkHttp();
 
         return view;
     }
 
-    private void initCourseView(View view) {
-        rvCourse = view.findViewById(R.id.rv_courses);
+    private void loadCourseByFile() {
+        try {
+            InputStream is = getResources().getAssets().open("chapter_intro.json");
+            String json = IOUtils.convert(is, StandardCharsets.UTF_8);
+            List<Course> courses = JSON.parseArray(json, Course.class);
+            if(courses != null) {
+                updateCourse(courses);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
+    private void loadCourseByNet() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String json = NetworkUtils.get("https://www.fastmock.site/mock/b46332ceba020b46458f016deac2c275/course/chapter");
+                List<Course> courses = JSON.parseArray(json, Course.class);
+                if(courses != null) {
+                    Message msg = new Message();
+                    msg.what = MSG_COURSE_ID;  // 整型常量，可以用整数直接代替
+                    msg.obj = courses;
+                    courseHandler.sendMessage(msg);
+                }
+            }
+        }).start();
+    }
+
+    private void loadCourseByOkHttp() {
+        // 1. 创建一个Okhttp3的Request对象，装载url、header等request头
+        Request request = new Request.Builder()
+                .url("https://www.fastmock.site/mock/b46332ceba020b46458f016deac2c275/course/chapter")
+                .addHeader("Accept", "application/json")
+                .method("GET", null)
+                .build();
+
+        // 2. 采用OkHttp的enqueue异步方式发送请求，使用Callback回调处理响应
+        HttpsUtil.handleSSLHandshakeByOkHttp().newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                // 处理请求失败的信息
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    // 2.1 提取Http body数据
+                    if(response.body() != null) {
+                        String json = response.body().string();
+                        final List<Course> courses = JSON.parseArray(json, Course.class);
+
+                        // 使用Handler的Message更新UI
+//                    if(courses != null) {
+//                        Message msg = new Message();
+//                        msg.what = MSG_COURSE_ID;
+//                        msg.obj = courses;
+//                        courseHandler.sendMessage(msg);
+//                    }
+                        // 2.2 通过runOnUiThread回到主线程下更新UI
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateCourse(courses);
+                            }
+                        });
+                    }
+                }
+            }
+        });
+    }
+
+    private void updateCourse(final List<Course> courses) {
         CourseRecyclerAdapter adapter = new CourseRecyclerAdapter(courses);
         rvCourse.setLayoutManager(new GridLayoutManager(getContext(), 2));
         rvCourse.setAdapter(adapter);
@@ -94,19 +179,34 @@ public class AnotherCourseFragment extends Fragment {
                 // 跳转到课程详情界面
                 Toast.makeText(getContext(), "点击了：" + course.getTitle(),
                         Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getContext(), CourseVideoActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("course", course);
+                intent.putExtras(bundle);
+                startActivity(intent);
             }
         });
     }
 
-    private void initCourses() {
-        courses = new ArrayList<>();
+    private static class CourseHandler extends Handler {
+        private WeakReference<AnotherCourseFragment> ref;
 
-        try {
-            InputStream is = getResources().getAssets().open("chapter_intro.json");
-            String json = IOUtils.convert(is, StandardCharsets.UTF_8);
-            courses = JSON.parseArray(json, Course.class);
-        } catch (IOException e) {
-            e.printStackTrace();
+        public CourseHandler(AnotherCourseFragment fragment) {
+            this.ref = new WeakReference<>(fragment);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            AnotherCourseFragment target = ref.get();
+
+            if(msg.what == MSG_COURSE_ID) {
+                List<Course> courses = (List<Course>) msg.obj;
+                if(courses != null) {
+                    target.updateCourse(courses);
+                } else {
+                    Toast.makeText(target.getContext(),"目前还没有课程数据", Toast.LENGTH_SHORT).show();
+                }
+            }
         }
     }
 

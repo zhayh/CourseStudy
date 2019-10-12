@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         fragments.put(R.id.btn_course, CourseFragment.newInstance());
 
         // 2. 加载默认的Fragment
-        replaceFragment(fragments.get(R.id.btn_execise));
+        replaceFragment(fragments.get(R.id.btn_course));
     }
 
     /**

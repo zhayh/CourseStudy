@@ -33,13 +33,13 @@
         <RadioButton
             android:id="@+id/btn_course"
             style="@style/TabMenuItem"
+            android:checked="true"
             android:drawableTop="@drawable/selector_nav_course"
             android:text="课程" />
 
         <RadioButton
             android:id="@+id/btn_execise"
             style="@style/TabMenuItem"
-            android:checked="true"
             android:drawableTop="@drawable/selector_nav_execise"
             android:text="习题" />
 
