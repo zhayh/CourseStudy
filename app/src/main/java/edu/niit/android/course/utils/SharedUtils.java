@@ -56,4 +56,9 @@ public class SharedUtils {
         SharedPreferences sp = context.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE);
         return sp.getString(key, "");
     }
+
+    public static boolean isLogin(Context context, String key) {
+        SharedPreferences sp = context.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE);
+        return sp.getBoolean(key, false);
+    }
 }

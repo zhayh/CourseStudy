@@ -14,7 +14,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/NoActionBar">
-        <activity android:name=".activity.CourseVideoActivity"></activity>
+        <activity android:name=".activity.PlayHistoryActivity"></activity>
+        <activity android:name=".activity.CourseVideoActivity" />
         <activity android:name=".activity.ExerciseDetailActivity" />
         <activity android:name=".activity.ChangeUserInfoActivity" />
         <activity android:name=".activity.UserInfoActivity" />

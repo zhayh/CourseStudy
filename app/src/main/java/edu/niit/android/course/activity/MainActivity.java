@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.SparseArray;
 import android.view.View;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -12,6 +13,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import edu.niit.android.course.R;
+import edu.niit.android.course.fragment.AnotherCourseFragment;
 import edu.niit.android.course.fragment.CourseFragment;
 import edu.niit.android.course.fragment.ExerciseRecyclerFragment;
 import edu.niit.android.course.fragment.MyInfoFragment;
@@ -48,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
 //        fragments.put(R.id.btn_execise, ExerciseFragment.newInstance("Activity向Fragment传值"));
         fragments.put(R.id.btn_execise, ExerciseRecyclerFragment.newInstance("Activity向Fragment传值"));
         fragments.put(R.id.btn_course, CourseFragment.newInstance());
+        fragments.put(R.id.btn_message, AnotherCourseFragment.newInstance());
 
         // 2. 加载默认的Fragment
         replaceFragment(fragments.get(R.id.btn_course));
@@ -103,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         group.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-//                Toast.makeText(MainActivity.this, titles.get(checkedId), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, checkedId + "", Toast.LENGTH_SHORT).show();
                 setToolbar(checkedId);
                 replaceFragment(fragments.get(checkedId));
             }

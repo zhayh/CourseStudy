@@ -88,8 +88,10 @@ public class CourseFragment extends Fragment implements ViewPager.OnPageChangeLi
         llPoint.getChildAt(0).setEnabled(true);
         tvDesc.setText(adImages.get(0).getDesc());
         viewPager.setAdapter(new AdViewPagerAdapter(imageViews));
+//        viewPager.setAdapter(new CustomPagerAdapter());
 
         adHandler = new AdHandler(viewPager);
+//        adHandler.sendEmptyMessageDelayed(MSG_AD_ID, 5000);
         new AdSlideThread().start();
 
         // 课程相关
@@ -128,9 +130,8 @@ public class CourseFragment extends Fragment implements ViewPager.OnPageChangeLi
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Course course = (Course) parent.getItemAtPosition(position);
                 // 跳转到课程详情界面
-                Toast.makeText(getContext(), "点击了：" + course.getTitle(), Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getContext(), CourseVideoActivity.class);
-                Bundle bundle = new Bundle();
+                Bundle bundle = new Bundle();  // Bundle一般用于传递对象等复杂类型的数据
                 bundle.putSerializable("course", course);
                 intent.putExtras(bundle);
                 startActivity(intent);
@@ -206,12 +207,12 @@ public class CourseFragment extends Fragment implements ViewPager.OnPageChangeLi
                         final List<Course> courses = JSON.parseArray(json, Course.class);
 
                         // 使用Handler的Message更新UI
-//                    if(courses != null) {
-//                        Message msg = new Message();
-//                        msg.what = MSG_COURSE_ID;
-//                        msg.obj = courses;
-//                        courseHandler.sendMessage(msg);
-//                    }
+//                        if (courses != null) {
+//                            Message msg = new Message();
+//                            msg.what = MSG_COURSE_ID;
+//                            msg.obj = courses;
+//                            courseHandler.sendMessage(msg);
+//                        }
                         // 2.2 通过runOnUiThread回到主线程下更新UI
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
@@ -276,25 +277,25 @@ public class CourseFragment extends Fragment implements ViewPager.OnPageChangeLi
         }
 
         // 监听触屏事件，按下后取消所有的消息，抬起则恢复
-        viewPager.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        adHandler.removeCallbacksAndMessages(null);
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        // 删除CourseFragment
-                        adHandler.removeCallbacksAndMessages(null);
-                        adHandler.sendEmptyMessageDelayed(CourseFragment.MSG_AD_ID, 5000);
-                        v.performClick();  // 解决onTouch和onClick事件的冲突
-                        break;
-                }
-                return true;
-            }
-        });
+//        viewPager.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                switch (event.getAction()) {
+//                    case MotionEvent.ACTION_DOWN:
+//                        adHandler.removeCallbacksAndMessages(null);
+//                        break;
+//                    case MotionEvent.ACTION_MOVE:
+//                        break;
+//                    case MotionEvent.ACTION_UP:
+//                        // 删除CourseFragment
+//                        adHandler.removeCallbacksAndMessages(null);
+//                        adHandler.sendEmptyMessageDelayed(CourseFragment.MSG_AD_ID, 5000);
+//                        v.performClick();  // 解决onTouch和onClick事件的冲突
+//                        break;
+//                }
+//                return true;
+//            }
+//        });
     }
 
     // 添加指示器圆点

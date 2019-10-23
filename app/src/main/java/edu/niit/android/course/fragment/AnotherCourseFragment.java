@@ -252,25 +252,25 @@ public class AnotherCourseFragment extends Fragment {
         }
 
         // 监听触屏事件，按下后取消所有的消息，抬起则恢复
-        adPager.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        adHandler.removeCallbacksAndMessages(null);
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        // 删除CourseFragment
-                        adHandler.removeCallbacksAndMessages(null);
-                        adHandler.sendEmptyMessageDelayed(CourseFragment.MSG_AD_ID, 5000);
-                        v.performClick();  // 解决onTouch和onClick事件的冲突
-                        break;
-                }
-                return true;
-            }
-        });
+//        adPager.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                switch (event.getAction()) {
+//                    case MotionEvent.ACTION_DOWN:
+//                        adHandler.removeCallbacksAndMessages(null);
+//                        break;
+//                    case MotionEvent.ACTION_MOVE:
+//                        break;
+//                    case MotionEvent.ACTION_UP:
+//                        // 删除CourseFragment
+//                        adHandler.removeCallbacksAndMessages(null);
+//                        adHandler.sendEmptyMessageDelayed(CourseFragment.MSG_AD_ID, 5000);
+//                        v.performClick();  // 解决onTouch和onClick事件的冲突
+//                        break;
+//                }
+//                return true;
+//            }
+//        });
     }
 
     /**

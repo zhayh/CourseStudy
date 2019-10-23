@@ -1,5 +1,6 @@
 package edu.niit.android.course.adapter;
 
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -10,10 +11,13 @@ import androidx.viewpager.widget.PagerAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Handler;
+
+import edu.niit.android.course.fragment.CourseFragment;
 
 public class AdViewPagerAdapter extends PagerAdapter {
     private List<ImageView> imageViews;
-
+    private Handler handler;
 
     public AdViewPagerAdapter() {
         this(null);

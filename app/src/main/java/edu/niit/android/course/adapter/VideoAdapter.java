@@ -18,7 +18,7 @@ import edu.niit.android.course.entity.Video;
 public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> {
     private List<Video> videos;
 
-    private int selected;
+
     private OnItemClickListener itemClickListener;
 
     public VideoAdapter(List<Video> videos) {
@@ -46,6 +46,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
         } else {
             holder.ivIcon.setImageResource(R.mipmap.ic_play);
             holder.tvTitle.setTextColor(Color.parseColor("#333333"));
+//            holder.tvTitle.setTextColor(context.getResources().getColor(R.color.colorAccent));
         }
 
         // 设置选项监听
@@ -64,6 +65,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
         return videos.size();
     }
 
+    private int selected = -1;  // 选中项的序号
     public void setSelected(int selected) {
         this.selected = selected;
     }

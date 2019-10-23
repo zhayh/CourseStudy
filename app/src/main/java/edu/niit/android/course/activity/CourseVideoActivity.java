@@ -21,6 +21,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.alibaba.fastjson.JSON;
+
 import org.json.JSONException;
 
 import java.io.IOException;
@@ -40,11 +42,13 @@ import edu.niit.android.course.utils.SharedUtils;
 import edu.niit.android.course.utils.StatusUtils;
 
 public class CourseVideoActivity extends AppCompatActivity {
-    private VideoView videoView;
-    private ImageView ivVideo;
-    private TextView tvIntro;
-    private RecyclerView rvVideo;
+    // 控件对象
+    private VideoView videoView;    // 视频播放器
+    private ImageView ivVideo;      // 视频的第1帧数据显示
+    private TextView tvIntro;       // 课程介绍，来自上一个界面的Course对象的intro属性
+    private RecyclerView rvVideo;   // 视频列表
 
+    // 数据对象
     private Course course;
     private List<Video> videos;
     private VideoAdapter adapter;
@@ -59,24 +63,46 @@ public class CourseVideoActivity extends AppCompatActivity {
 
         StatusUtils.initToolbar(this, "视频资源", true, false);
 
+        // 1. 获取初始化界面的数据
         initData();
+        // 2. 初始化界面控件，并填充数据
         initView();
+        // 3. 加载视频的第1帧图像（可选）
         loadFirstFrame();
     }
 
-    // 加载视频的首帧图像
-    private void  loadFirstFrame() {
-        Bitmap bitmap = null;
+    private void initData() {
+        // 1. 接收从上一个界面传递的Bundle对象
+        Bundle bundle = getIntent().getExtras();
+        if(bundle != null) {
+            course = (Course) bundle.getSerializable("course");
+        }
 
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        retriever.setDataSource(this, Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.video101));
-        bitmap = retriever.getFrameAtTime();
-        ivVideo.setImageBitmap(bitmap);
+        // 2. 从json文件中获取视频的描述数据
+        videos = new ArrayList<>();
+
+        try {
+            // 2.1 获取json文件中的所有数据集合
+            InputStream is = getResources().getAssets().open("course.json");
+            String json = IOUtils.convert(is, StandardCharsets.UTF_8);
+            videos = JSON.parseArray(json, Video.class);
+
+            // 2.2 筛选出course的id对应的视频集合
+            Iterator<Video> it = videos.iterator();
+            while(it.hasNext()) {
+                Video video = it.next();
+                if(video.getChapterId() != course.getId()) {
+                    it.remove();
+                }
+            }
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void initView() {
         videoView = findViewById(R.id.video_view);
-        videoView.setMediaController(new MediaController(this));
         controller = new MediaController(this);
         videoView.setMediaController(controller);
 
@@ -95,28 +121,46 @@ public class CourseVideoActivity extends AppCompatActivity {
             public void onItemClick(View view, int position) {
                 // 设置选中项，并通过notifyDataSetChanged()更新UI
                 adapter.setSelected(position);
-                adapter.notifyDataSetChanged();
+                adapter.notifyDataSetChanged();  // 更新UI
 
+                // 获取Video对象的数据，并初始化VideoView
                 Video video = videos.get(position);
                 if(videoView.isPlaying()) {
                     videoView.stopPlayback();
                 }
 
                 if(TextUtils.isEmpty(video.getVideoPath())) {
-                    Toast.makeText(CourseVideoActivity.this, "本地没有此视频，暂时无法播放", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CourseVideoActivity.this,
+                            "本地没有此视频，暂时无法播放", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                // 播放视频
                 videoView.setVisibility(View.VISIBLE);
                 ivVideo.setVisibility(View.GONE);
-                play();
+                String uri = "android.resource://" + getPackageName() + "/" + R.raw.video101;
+                videoView.setVideoPath(uri);
+                videoView.start();
 
-                if(SharedUtils.isLogin(CourseVideoActivity.this, "isLogin")) {
-                    String username = SharedUtils.readValue(CourseVideoActivity.this, "loginUser");
-                    PlayListDao.getInstance(CourseVideoActivity.this).save(video, username);
-                }
+                // 将播放历史存储到数据库
+//                if(SharedUtils.isLogin(CourseVideoActivity.this, "isLogin")) {
+//                    String username = SharedUtils.readValue(CourseVideoActivity.this, "loginUser");
+//                    PlayListDao.getInstance(CourseVideoActivity.this).save(video, username);
+//                }
             }
         });
     }
+    // 加载视频的首帧图像
+    private void  loadFirstFrame() {
+        Bitmap bitmap = null;
+
+        Uri uri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.video101);
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(this, uri);
+        bitmap = retriever.getFrameAtTime();
+        ivVideo.setImageBitmap(bitmap);
+    }
+
+
 
     // 播放视频
     private void play() {
@@ -134,27 +178,5 @@ public class CourseVideoActivity extends AppCompatActivity {
         }
     }
 
-    private void initData() {
-        Bundle bundle = getIntent().getExtras();
-        if(bundle != null) {
-            course = (Course) bundle.getSerializable("course");
-        }
 
-        videos = new ArrayList<>();
-        try {
-            InputStream is = getResources().getAssets().open("course.json");
-            String json = IOUtils.convert(is, StandardCharsets.UTF_8);
-            videos = IOUtils.convert(json, Video.class);
-
-            Iterator<Video> it = videos.iterator();
-            while(it.hasNext()) {
-                Video video = it.next();
-                if(video.getChapterId() != course.getId()) {
-                    it.remove();
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }

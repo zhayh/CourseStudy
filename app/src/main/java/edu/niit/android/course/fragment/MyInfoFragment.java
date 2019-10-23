@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment;
 
 import edu.niit.android.course.R;
 import edu.niit.android.course.activity.LoginActivity;
+import edu.niit.android.course.activity.PlayHistoryActivity;
 import edu.niit.android.course.activity.SettingActivity;
 import edu.niit.android.course.activity.UserInfoActivity;
 
@@ -71,7 +72,8 @@ public class MyInfoFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (isLogin) {
-
+                    Intent intent = new Intent(mContext, PlayHistoryActivity.class);
+                    startActivity(intent);
                 } else {
                     Toast.makeText(mContext, "请先登录", Toast.LENGTH_SHORT).show();
                 }

@@ -2,6 +2,13 @@ package edu.niit.android.course.entity;
 
 import java.io.Serializable;
 
+/**
+ * "chapterId": 1,
+ * "videoId": "1",
+ * "title": "第1章 Android 基础入门",
+ * "videoTitle": "Android系统简介",
+ * "videoPath": "video101.mp4"
+ */
 public class Video implements Serializable {
     private int chapterId;
     private int videoId;
