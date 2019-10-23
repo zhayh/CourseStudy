@@ -12,19 +12,31 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import edu.niit.android.course.R;
 import edu.niit.android.course.utils.MD5Utils;
 import edu.niit.android.course.utils.SharedUtils;
 import edu.niit.android.course.utils.StatusUtils;
 
 public class LoginActivity extends AppCompatActivity {
-    private EditText etUsername, etPassword;
+    @BindView(R.id.et_username)
+    EditText etUsername;
+    @BindView(R.id.et_password)
+    EditText etPassword;
+    @BindView(R.id.btn_login)
+    Button btnLogin;
+    @BindView(R.id.tv_register)
+    TextView tvRegister;
+    @BindView(R.id.tv_forget)
+    TextView tvForget;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         StatusUtils.setImmersionMode(this);
         setContentView(R.layout.activity_login);
+        ButterKnife.bind(this);
 
         StatusUtils.initToolbar(this, "登录", true, false);  // 初始化toolbar
 
@@ -41,10 +53,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        etUsername = findViewById(R.id.et_username);
-        etPassword = findViewById(R.id.et_password);
-
-        TextView tvRegister = findViewById(R.id.tv_register);
         tvRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -53,8 +61,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        TextView tvForgetPwd = findViewById(R.id.tv_forget);
-        tvForgetPwd.setOnClickListener(new View.OnClickListener() {
+        tvForget.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(LoginActivity.this, FindPwdActivity.class);
@@ -62,7 +69,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        Button btnLogin = findViewById(R.id.btn_login);
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
